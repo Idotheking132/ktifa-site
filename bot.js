@@ -29,7 +29,7 @@ if (require.main === module) {
 }
 
 const Appointment = require('./models/Appointment');
-const Slot = require('./models/Slot');
+const Worker = require('./models/Worker');
 
 client.once(Events.ClientReady, () => {
   console.log(`🤖 Bot logged in as ${client.user.tag}`);

@@ -444,20 +444,33 @@ function showToast(msg, err = false) {
 
 // ── Admin: Add Appointment ────────────────────────────────────────────────────
 function loadAdminTab() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('adminDate').min = today;
+  // No need to set date - we calculate next occurrence
 }
 
 async function adminAddAppointment() {
   const userName = document.getElementById('adminUserName').value.trim();
-  const date = document.getElementById('adminDate').value;
+  const dayOfWeek = parseInt(document.getElementById('adminDayOfWeek').value);
   const startTime = document.getElementById('adminStartTime').value;
   const duration = parseInt(document.getElementById('adminDuration').value);
   const note = document.getElementById('adminNote').value.trim();
 
-  if (!userName || !date || !startTime) {
+  if (!userName || !startTime) {
     return showToast('מלא את כל השדות', true);
   }
+
+  // Find next occurrence of this day of week
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let targetDate = new Date(today);
+  const daysUntil = (dayOfWeek - today.getDay() + 7) % 7;
+  if (daysUntil === 0 && today.getDay() === dayOfWeek) {
+    // If it's today, schedule for next week
+    targetDate.setDate(today.getDate() + 7);
+  } else {
+    targetDate.setDate(today.getDate() + daysUntil);
+  }
+
+  const date = targetDate.toISOString().split('T')[0];
 
   const [h, m] = startTime.split(':').map(Number);
   const endMins = h * 60 + m + duration;
@@ -474,7 +487,6 @@ async function adminAddAppointment() {
     
     showToast('✅ התור נוסף בהצלחה!');
     document.getElementById('adminUserName').value = '';
-    document.getElementById('adminDate').value = '';
     document.getElementById('adminStartTime').value = '';
     document.getElementById('adminNote').value = '';
   } catch(e) {

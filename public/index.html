@@ -100,31 +100,39 @@
           <div class="admin-body">
             <div class="asec active" id="asec-addAppt">
               <div class="asec-head">
-                <h3>הוסף תור חדש</h3>
+                <h3>הוסף תור לשבוע הקרוב</h3>
               </div>
               <div class="admin-add-form">
                 <div class="form-group">
                   <label>שם המשתמש</label>
                   <input type="text" id="adminUserName" placeholder="שם מלא" class="input-field" />
                 </div>
+                <div class="form-group">
+                  <label>יום בשבוע</label>
+                  <select id="adminDayOfWeek" class="input-field">
+                    <option value="0">ראשון</option>
+                    <option value="1">שני</option>
+                    <option value="2">שלישי</option>
+                    <option value="3">רביעי</option>
+                    <option value="4">חמישי</option>
+                    <option value="5">שישי</option>
+                    <option value="6">שבת</option>
+                  </select>
+                </div>
                 <div class="form-row">
-                  <div class="form-group">
-                    <label>תאריך</label>
-                    <input type="date" id="adminDate" class="input-field" />
-                  </div>
                   <div class="form-group">
                     <label>שעת התחלה</label>
                     <input type="time" id="adminStartTime" class="input-field" />
                   </div>
-                </div>
-                <div class="form-group">
-                  <label>משך (דקות)</label>
-                  <select id="adminDuration" class="input-field">
-                    <option value="30">30 דקות</option>
-                    <option value="60">שעה</option>
-                    <option value="90">שעה וחצי</option>
-                    <option value="120">שעתיים</option>
-                  </select>
+                  <div class="form-group">
+                    <label>משך (דקות)</label>
+                    <select id="adminDuration" class="input-field">
+                      <option value="30">30 דקות</option>
+                      <option value="60">שעה</option>
+                      <option value="90">שעה וחצי</option>
+                      <option value="120">שעתיים</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label>הערה</label>

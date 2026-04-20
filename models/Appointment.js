@@ -5,7 +5,7 @@ const appointmentSchema = new mongoose.Schema({
   username: { type: String, required: true },
   discriminator: { type: String },
   avatar: { type: String },
-  workerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Worker', required: true },
+  workerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Worker' },
   date: { type: Date, required: true },
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },

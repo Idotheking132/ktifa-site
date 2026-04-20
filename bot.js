@@ -44,7 +44,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   if (action !== 'approve' && action !== 'reject') return;
 
   try {
-    const appointment = await Appointment.findById(appointmentId).populate('slotId');
+    const appointment = await Appointment.findById(appointmentId).populate('workerId');
     if (!appointment) {
       return interaction.reply({ content: '❌ לא נמצאה הבקשה.', ephemeral: true });
     }
@@ -53,32 +53,24 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return interaction.reply({ content: '⚠️ הבקשה כבר טופלה.', ephemeral: true });
     }
 
-    if (action === 'approve') {
-      appointment.status = 'approved';
-      await appointment.save();
+    const newStatus = action === 'approve' ? 'approved' : 'rejected';
+    appointment.status = newStatus;
+    await appointment.save();
 
-      // Update embed
-      const approvedEmbed = buildEmbed(appointment, 'approved');
-      await interaction.update({ embeds: [approvedEmbed], components: [] });
+    // Update embed
+    const updatedEmbed = buildEmbed(appointment, newStatus);
+    await interaction.update({ embeds: [updatedEmbed], components: [] });
 
-      // DM the user
-      await dmUser(appointment, 'approved');
-
-    } else if (action === 'reject') {
-      appointment.status = 'rejected';
-      await appointment.save();
-
-      // Update embed
-      const rejectedEmbed = buildEmbed(appointment, 'rejected');
-      await interaction.update({ embeds: [rejectedEmbed], components: [] });
-
-      // DM the user
-      await dmUser(appointment, 'rejected');
-    }
+    // DM the user
+    await dmUser(appointment, newStatus);
 
   } catch (err) {
     console.error('Button interaction error:', err);
-    interaction.reply({ content: '❌ שגיאה בעיבוד הבקשה.', ephemeral: true }).catch(() => {});
+    try {
+      await interaction.reply({ content: '❌ שגיאה בעיבוד הבקשה.', ephemeral: true });
+    } catch (replyErr) {
+      console.error('Failed to send error reply:', replyErr);
+    }
   }
 });
 
@@ -98,12 +90,12 @@ function buildEmbed(appointment, status = 'pending') {
   const workerName = appointment.workerId?.name || 'לא ידוע';
 
   return new EmbedBuilder()
-    .setTitle('✂️ בקשת תור לקטיפה')
+    .setTitle('✂️ בקשת תור - Ido & Jonathan Shop')
     .setColor(statusColors[status])
     .setThumbnail(avatarUrl)
     .addFields(
       { name: '👤 משתמש', value: `<@${appointment.userId}> (${appointment.username})`, inline: true },
-      { name: '💈 ספר', value: workerName, inline: true },
+      { name: '💼 עובד', value: workerName, inline: true },
       { name: '📅 תאריך', value: dateStr, inline: false },
       { name: '🕐 שעה', value: `${appointment.startTime} - ${appointment.endTime}`, inline: true },
       { name: '📝 הערה', value: appointment.note || 'אין הערה', inline: false },
@@ -155,15 +147,15 @@ async function dmUser(appointment, status) {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 
-    const workerName = appointment.workerId?.name || 'הספר';
+    const workerName = appointment.workerId?.name || 'העובד';
 
     if (status === 'approved') {
       const embed = new EmbedBuilder()
         .setTitle('✅ התור שלך אושר!')
         .setColor(0x2ECC71)
-        .setDescription(`שלום <@${appointment.userId}>! 🎉\nהתור שלך לקטיפה **אושר**!`)
+        .setDescription(`שלום <@${appointment.userId}>! 🎉\nהתור שלך ב-**Ido & Jonathan Shop** אושר!`)
         .addFields(
-          { name: '💈 ספר', value: workerName, inline: true },
+          { name: '💼 עובד', value: workerName, inline: true },
           { name: '📅 תאריך', value: dateStr, inline: true },
           { name: '🕐 שעה', value: `${appointment.startTime} - ${appointment.endTime}`, inline: true }
         )
@@ -175,7 +167,7 @@ async function dmUser(appointment, status) {
       const embed = new EmbedBuilder()
         .setTitle('❌ התור לא אושר')
         .setColor(0xE74C3C)
-        .setDescription(`שלום <@${appointment.userId}>.\nלצערנו, **לא אושר לך התור לקטיפה** בתאריך ${dateStr} בשעה ${appointment.startTime}.\nניתן לנסות לקבוע תור בזמן אחר.`)
+        .setDescription(`שלום <@${appointment.userId}>.\nלצערנו, **לא אושר לך התור** בתאריך ${dateStr} בשעה ${appointment.startTime}.\nניתן לנסות לקבוע תור בזמן אחר.`)
         .setTimestamp();
 
       await user.send({ embeds: [embed] });

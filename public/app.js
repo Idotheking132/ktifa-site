@@ -109,7 +109,7 @@ async function loadBookStep1() {
     const res = await fetch('/api/workers');
     const workers = await res.json();
     if (!workers.length) {
-      grid.innerHTML = '<div class="empty"><div class="empty-icon">✂️</div><h3>אין ספרים זמינים</h3></div>';
+      grid.innerHTML = '<div class="empty"><div class="empty-icon">✂️</div><h3>אין מקום פנוי בקטיפה</h3></div>';
       return;
     }
     grid.innerHTML = workers.map(w => `
@@ -191,7 +191,7 @@ function pickTime(start, end) {
   selectedTime = { start, end };
   // Show confirm modal
   document.getElementById('confirmDetails').innerHTML = `
-    <div><strong>ספר:</strong> ${selectedWorker.name}</div>
+    <div><strong>עובד:</strong> ${selectedWorker.name}</div>
     <div><strong>יום:</strong> ${selectedDay.dayName} ${selectedDay.dateLabel}</div>
     <div><strong>שעה:</strong> ${start} - ${end}</div>
   `;
@@ -263,8 +263,8 @@ async function loadSchedule() {
               <div class="schedule-dot" style="background:${a.workerId?.color || '#999'}"></div>
               <div class="schedule-time">${a.startTime} - ${a.endTime}</div>
               <div class="schedule-info">
-                <div class="schedule-worker">${a.workerId?.name || 'ספר'}</div>
-                <div class="schedule-user">${a.username}</div>
+                <div class="schedule-worker">${a.username}</div>
+                <div class="schedule-user">עובד: ${a.workerId?.name || 'לא ידוע'}</div>
               </div>
               <span class="schedule-badge ${a.status === 'approved' ? 's-approved' : 's-pending'}">
                 ${a.status === 'approved' ? 'אושר' : 'ממתין'}
@@ -297,7 +297,7 @@ async function loadMyAppts() {
         <div class="appt-item">
           <div class="appt-dot dot-${a.status}"></div>
           <div class="appt-info">
-            <div class="appt-title">${a.workerId?.name || 'ספר'}</div>
+            <div class="appt-title">${a.workerId?.name || 'עובד'}</div>
             <div class="appt-meta">${dateStr} · ${a.startTime} - ${a.endTime}</div>
           </div>
           <span class="appt-badge b-${a.status}">${labels[a.status]}</span>
@@ -316,7 +316,7 @@ async function loadAdminWorkers() {
     const res = await fetch('/api/admin/workers');
     const workers = await res.json();
     if (!workers.length) {
-      list.innerHTML = '<div class="empty"><div class="empty-icon">✂️</div><h3>אין ספרים</h3></div>';
+      list.innerHTML = '<div class="empty"><div class="empty-icon">✂️</div><h3>אין מקום פנוי</h3></div>';
       return;
     }
     const durLabels = { 30:'30 דקות', 60:'שעה', 90:'שעה וחצי', 120:'שעתיים' };
@@ -338,7 +338,7 @@ async function loadAdminWorkers() {
 }
 
 function openWorkerModal(w) {
-  document.getElementById('workerModalTitle').textContent = w ? 'ערוך ספר' : 'הוסף ספר';
+  document.getElementById('workerModalTitle').textContent = w ? 'ערוך עובד' : 'הוסף עובד';
   document.getElementById('wId').value = w?._id || '';
   document.getElementById('wName').value = w?.name || '';
   document.getElementById('wColor').value = w?.color || '#6366f1';

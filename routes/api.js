@@ -224,6 +224,29 @@ router.get('/admin/appointments', requireAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Admin add appointment directly (no approval needed)
+router.post('/admin/appointments/direct', requireAdmin, async (req, res) => {
+  try {
+    const { userName, date, startTime, endTime, note } = req.body;
+
+    const appointment = new Appointment({
+      userId: 'admin-' + Date.now(),
+      username: userName,
+      discriminator: '0000',
+      avatar: null,
+      workerId: null,
+      date: new Date(date),
+      startTime,
+      endTime,
+      note: note || '',
+      status: 'approved'
+    });
+
+    await appointment.save();
+    res.json({ success: true, appointment });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 router.post('/admin/appointments/:id/status', requireAdmin, async (req, res) => {
   try {
     const { status } = req.body;

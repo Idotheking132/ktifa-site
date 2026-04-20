@@ -94,7 +94,6 @@ function setupAdminMenu() {
       const sec = document.getElementById('asec-' + btn.dataset.asec);
       sec.classList.remove('hidden');
       sec.classList.add('active');
-      if (btn.dataset.asec === 'workers') loadAdminWorkers();
       if (btn.dataset.asec === 'allAppts') loadAllAppts();
     });
   });
@@ -440,4 +439,45 @@ function showToast(msg, err = false) {
   t.textContent = msg;
   t.className = `toast show${err ? ' err' : ''}`;
   setTimeout(() => { t.className = 'toast hidden'; }, 3000);
+}
+
+
+// ── Admin: Add Appointment ────────────────────────────────────────────────────
+function loadAdminTab() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('adminDate').min = today;
+}
+
+async function adminAddAppointment() {
+  const userName = document.getElementById('adminUserName').value.trim();
+  const date = document.getElementById('adminDate').value;
+  const startTime = document.getElementById('adminStartTime').value;
+  const duration = parseInt(document.getElementById('adminDuration').value);
+  const note = document.getElementById('adminNote').value.trim();
+
+  if (!userName || !date || !startTime) {
+    return showToast('מלא את כל השדות', true);
+  }
+
+  const [h, m] = startTime.split(':').map(Number);
+  const endMins = h * 60 + m + duration;
+  const endTime = `${String(Math.floor(endMins/60)).padStart(2,'0')}:${String(endMins%60).padStart(2,'0')}`;
+
+  try {
+    const res = await fetch('/api/admin/appointments/direct', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userName, date, startTime, endTime, note })
+    });
+    const data = await res.json();
+    if (!res.ok) return showToast(data.error || 'שגיאה', true);
+    
+    showToast('✅ התור נוסף בהצלחה!');
+    document.getElementById('adminUserName').value = '';
+    document.getElementById('adminDate').value = '';
+    document.getElementById('adminStartTime').value = '';
+    document.getElementById('adminNote').value = '';
+  } catch(e) {
+    showToast('שגיאה', true);
+  }
 }
